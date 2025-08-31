@@ -1,0 +1,16 @@
+For this lab we had to run ESXi from dual boot because Microsoft's Hyper-V would not allow virtualization of ESXi without turning of memory protection.
+
+As a work around we are dual-booting from our machine and will load ESXi onto an internal hard-drive picked up the day before. 
+
+We used Ventoy that had ESXi installed but when we finished installing, ESXi did not detect a network card. We had to find a way to get ESXi to recognize our ethernet card (RealTek PCIe GbE Family Controller) so we had to build a customized script that allowed us to inject our ethernet card into the default iso. 
+So hopefully, the next install, it will recognize the ehternet card and we will be good to go.
+
+From Reddit it looks like the flings.vmware file needed to make the customizable file was removed during the acquisition of VMWare by Broadcom. Fortunately, there were some links provided to the archival site with the .zip file
+
+Website: 
+https://archive.org/download/flings.vmware.com/Flings/Community%20Networking%20Driver%20for%20ESXi/
+
+File:
+###Net-Community-Driver_1.2.7.0-1vmw.700.1.0.15843807_19480755.zip
+
+So from ChatGPT
