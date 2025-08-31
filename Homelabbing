@@ -13,4 +13,81 @@ https://archive.org/download/flings.vmware.com/Flings/Community%20Networking%20D
 File:
 ###Net-Community-Driver_1.2.7.0-1vmw.700.1.0.15843807_19480755.zip
 
-So from ChatGPT
+From ChatGPT
+Problem: 
+
+Since your installer already failed to detect the NIC, once you have the ZIP I can write you a ready-to-run PowerCLI script that:
+
+Imports the stock ESXi ISO
+Injects the Realtek driver
+Exports a new Custom-ESXi.iso
+
+Create a folder:
+So your folder should look like:
+VMware-ESXi-8.0.0.iso (the stock installer ISO)
+net-community-driver-xxxxxx.zip (the driver bundle, untouched)
+
+## Next Step
+
+If you’re ready, I’ll give you a PowerCLI script that:
+
+Imports the ESXi ISO.
+Imports the driver ZIP.
+Creates a new image profile.
+Injects the driver.
+Exports a new Custom-ESXi.iso.
+
+How to Get PowerCLI
+Open Windows PowerShell as Administrator.
+Run:
+
+Install-Module -Name VMware.PowerCLI -Scope CurrentUser
+
+If it asks about NuGet provider or trusting the repository, type Y and press Enter.
+
+This installs the PowerCLI cmdlets you’ll use:
+
+Add-EsxSoftwareDepot
+New-EsxImageProfile
+Add-EsxSoftwarePackage
+Export-EsxImageProfile
+
+After installation, type:
+
+Get-Module -ListAvailable VMware.PowerCLI
+
+We got an execution policy error:
+By default, Windows blocks running certain scripts (like PowerCLI modules) unless you relax the execution policy.
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+Import-Module VMware.ImageBuilder
+
+## Code to custom build ESXi ISO Script
+ *We got an error that ImageBuilder modules relies on Python so we need to install and register it with PowerCLI*
+Download from python.org
+Choose a version between 3.7.1 and 3.12 (I recommend 3.10.x for stability).
+During install, check ✅ “Add Python to PATH”.
+Install with Admin privileges
+
+
+tell PowerCLI where to find it:
+Set-PowerCLIConfiguration -Scope User -PythonPath "C:\Users\jonat\AppData\Local\Programs\Python\Python311\python.exe" -Confirm:$false
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
