@@ -74,20 +74,85 @@ tell PowerCLI where to find it:
 Set-PowerCLIConfiguration -Scope User -PythonPath "C:\Users\jonat\AppData\Local\Programs\Python\Python311\python.exe" -Confirm:$false
 
 
+Kept getting errors so we downloaded Python 3.10 and changed the PATH
+
+###Verify Python 3.10 is installed
+
+Run:
+py -0
 
 
+## Option B: Update PATH manually
 
+If the above doesn’t cover python directly:
+Open Start → Edit the system environment variables.
+Click Environment Variables.
+Under System variables, find Path, click Edit.
+Move the Python 3.10 path above the 3.11 path, e.g.:
 
+C:\Users\jonat\AppData\Local\Programs\Python\Python310\
+C:\Users\jonat\AppData\Local\Programs\Python\Python310\Scripts\
 
+Restart PowerShell/Command Prompt.
 
+Test with:
 
+python --version
 
+After some digging and understanding, I needed the offline bundle depot.zip file provided by Broadcom all along. Despite the acquistion and all thje changes, they're actually quite helpful and if this works, I'll feel like I've been treating Broadcom with ire just because it seems like everyone else has turned on them because the bought VMWare and changed everything up but in reality are surprisingly helpful.
 
+Okay so I downloaded the zip:C:\ESXi-Custom-Homelab\VMware-ESXi-8.0U2d-24585300-depot.zip file and moved it into my C:\Windows\ESXi-Custom-Homelab directory where I have it, and ESXi-Custom-Homelab\Net-Community-Driver_1.2.7.0-1vmw.700.1.0.15843807_19480755.zip along with the ESXi installer iso.
 
+I then got this script to run from ChatGPT:
 
+$WorkDir   = "C:\ESXi-Custom-Homelab"
+$DepotZip  = Join-Path $WorkDir "VMware-ESXi-8.0U2d-24585300-depot.zip"
+$DriverZip = Join-Path $WorkDir "Net-Community-Driver_1.2.7.0-1vmw.700.1.0.15843807_19480755.zip"
+$OutIso    = Join-Path $WorkDir "Custom-ESXi.iso"
 
+cd $WorkDir
+Import-Module VMware.ImageBuilder
+Set-PowerCLIConfiguration -Scope User -ParticipateInCEIP:$false -Confirm:$false | Out-Null
 
+# Add base ESXi depot + Realtek driver depot
+Add-EsxSoftwareDepot $DepotZip
+Add-EsxSoftwareDepot $DriverZip
 
+# Pick first '-standard' profile as base
+$base = (Get-EsxImageProfile | Where-Object { $_.Name -match 'standard' } | Select-Object -First 1).Name
+$custom = "ESXi-8.0U2d-Custom-Realtek"
 
+# Clone and add driver
+New-EsxImageProfile -CloneProfile $base -Name $custom -Vendor "Homelab" | Out-Null
+Add-EsxSoftwarePackage -ImageProfile $custom -SoftwarePackage net-community | Out-Null
+
+# Export custom ISO
+Export-EsxImageProfile -ImageProfile $custom -ExportToISO -FilePath $OutIso
+
+Write-Host "`nDone. Custom ISO created at:" $OutIso
+
+and it produced the iso Custom-ESXi.iso which I renamed to Custom-Homelab-ESXi.iso
+
+Then we checked to verify that the Realtek driver (net-community) is included using this one-liner in Windows PowerShell 5.1:
+
+(Get-EsxSoftwarePackage | Where-Object { $_.Name -like "net-community*" }) | Format-Table Name,Version
+
+output:
+
+Name          Version
+----          -------
+net-community 1.2.7.0-1vmw.700.1.0.15843807
+
+### Note:
+What Each File Does
+
+Installer ISO is Bootable media to install ESXi.
+You don’t technically need this once the custom ISO is built (the custom ISO replaces it).
+
+Depot ZIP is Base ESXi “software depot” for ImageBuilder.
+
+Community Driver ZIP Adds Realtek (and other) NIC drivers.
+
+Now we will copy Custom-Homelab-ESXi.iso to our Ventoy USB amd boot from that and see if it recognizes our USB. 
 
 
