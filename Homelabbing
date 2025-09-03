@@ -155,4 +155,66 @@ Community Driver ZIP Adds Realtek (and other) NIC drivers.
 
 Now we will copy Custom-Homelab-ESXi.iso to our Ventoy USB amd boot from that and see if it recognizes our USB. 
 
+UPDATE:
+
+None of that worked!
+
+Solution: Ordered a new Network interface card Intel I350 and installed 
+ESXi was able to recognize and provided us with a list of disks to boot from
+
+we are using ESXi 8.0.3
+
+we're going to dedicate the entire 6 TB hard drive to ESXi
+this way we won't have to worry about having to boot from a usb every time
+
+we selected the 6 TB internal hard drive to install
+
+password:password123!
+
+F11 to confirm install
+
+Get prompted to remove installation media before rebooting
+
+once we reboot, we go into ESXi and in the boot menu we can see where ESXi has installed onto the 6 TB disk.
+
+We select and see ESXi boot up
+
+Once it koads, it shows us information on our computer and core processing power.
+
+This is the DCUI (Direct Console User Interface)
+
+To manage:
+It gives us an IPv4 address given by DHCP (probably why we need the NIC)
+https://192.168.1.14/
+or
+https://Honor-6/
+
+F2 to customize
+login
+root:password123!
+
+We go to configure management network 
+(we got an ip from DHCP which will change in the future)
+
+then Network Adapters
+we see vmnic0 is disconnected and we are connected to vmnic1 for our management network
+
+Then we go to IPv4 configuration
+select "Set static IPv4 address and network configuration" (spacebar to select)
+we'll keep using the 192.168.1.14
+subnet mask: 255.255.255.0
+default gateway: 192.168.1.1
+
+IPv6
+select space to disable 
+
+DNS Server:
+
+We will leave it as default but we will probably need to change this. When we set up our Windows Server Domain Controller, we made it the DNS server so can proabably use it when it is up and running again
+We'll leave the hostname as Honor-6
+
+We'll probably want to circle back around to DNS suffixes as well
+(quick search show that these are like nicknames that hosts will try to resolve when they look for our FQDN)
+
+Apply changes and reboot host
 
