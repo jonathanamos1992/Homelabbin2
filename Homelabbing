@@ -218,3 +218,11 @@ We'll probably want to circle back around to DNS suffixes as well
 
 Apply changes and reboot host
 
+When we reboot we get the Hostname and IP address to use in krder to manage (We'll use the IP)
+
+Since its a self- signed certificate we will get a warning > continue
+
+We get the login screen for ESXi
+root:password123!
+
+and we get our ESXi Host Client Dashboard
